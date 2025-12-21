@@ -8,6 +8,7 @@
 #include "FFCore/Core/Logger.h"
 #include "FFCore/Core/Types.h"
 #include "FFCore/Core/HString.h"
+#include "FFCore/Math/Vec3.h"
 
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -19,7 +20,9 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 int main(int argc, char* argv[])
 {
-    FF::HString h("chuj"); 
+    FF::Vec3 v(100.123f, 100.123f, 100.123f);
+    
+    LOG_MESSAGE(v.ToString().Get())
     
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
