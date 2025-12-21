@@ -48,7 +48,16 @@ project "FFCore"
 	}
 	
 	includeGLFW()
+	
+	filter "configurations:Debug"
+		defines "FF_DEBUG"
+		runtime "Debug"
+		symbols "on"
 
+    filter "configurations:Release"
+		defines "FF_RELEASE"
+		runtime "Release"
+		optimize "on"
 
 project "FFEngine"
 	location "FFEngine"
@@ -95,7 +104,18 @@ project "FFEngine"
 
 	filter { "system:windows" }
     	links { "OpenGL32" }
+		
 	filter {}
+	
+		filter "configurations:Debug"
+		defines "FF_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+    filter "configurations:Release"
+		defines "FF_RELEASE"
+		runtime "Release"
+		optimize "on"
 
 project "FFSandbox"
 	location "FFSandbox"
@@ -140,5 +160,15 @@ project "FFSandbox"
 	
 	includeGLFW()
 	linkGLFW()
+	
+	filter "configurations:Debug"
+		defines "FF_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+    filter "configurations:Release"
+		defines "FF_RELEASE"
+		runtime "Release"
+		optimize "on"
 	
 	dependson { "FFCore", "FFEngine" }

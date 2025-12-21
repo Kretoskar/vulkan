@@ -4,6 +4,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "FFCore/Core/Assert.h"
+#include "FFCore/Core/Logger.h"
+#include "FFCore/Core/Types.h"
+
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if ((key == GLFW_KEY_ESCAPE) && (action == GLFW_PRESS))
@@ -14,18 +18,11 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 int main(int argc, char* argv[])
 {
-    constexpr int32_t width = 1080;
-    constexpr int32_t height = 720;
-    
-    if (!glfwInit())
-    {
-        return 1;
-    }
+    constexpr i32 width = 1080;
+    constexpr i32 height = 720;
 
-    if (!glfwVulkanSupported())
-    {
-        return 1;
-    }
+    ASSERT(glfwInit(), "Failed to initialize GLFW")
+    ASSERT(glfwVulkanSupported(), "GLFW does not support Vulkan")
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -35,7 +32,8 @@ int main(int argc, char* argv[])
     if (!window)
     {
         glfwTerminate();
-        return 1;
+        LOG_ERROR("Failed to create GLFW window")
+        return 3;
     }
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
