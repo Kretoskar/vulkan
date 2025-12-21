@@ -7,6 +7,7 @@
 #include "FFCore/Core/Assert.h"
 #include "FFCore/Core/Logger.h"
 #include "FFCore/Core/Types.h"
+#include "FFCore/Core/HString.h"
 
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -18,6 +19,8 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 int main(int argc, char* argv[])
 {
+    FF::HString h("chuj"); 
+    
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
 
