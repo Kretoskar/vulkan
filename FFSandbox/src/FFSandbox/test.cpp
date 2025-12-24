@@ -9,6 +9,7 @@
 #include "FFCore/Core/Types.h"
 #include "FFCore/Core/HString.h"
 #include "FFCore/Math/Vec3.h"
+#include "FFEngine/test.h"
 
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {

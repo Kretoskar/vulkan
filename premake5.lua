@@ -76,7 +76,7 @@ project "FFEngine"
 	includedirs
 	{
 		"%{prj.name}/include",
-		"FFEngine/include",
+		"FFCore/include",
 		"../../VulkanSDK/1.4.335.0/Include",
 	}
 
