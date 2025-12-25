@@ -1,20 +1,52 @@
 #pragma once
 
 #include "Logger.h"
+#if defined (_WIN32)
+    #include <windows.h>
+#endif
+#include <cstdlib>
+
+namespace FF
+{
+    inline void AssertImpl(bool condition, const char* message, const char* file, i32 line)
+    {
+        if (!condition)
+        {
+            char buffer[LOG_TEMPLATE_LENGTH];
+            
+            sprintf_s(
+                buffer,
+                "%s\n\n[Assert] [File: %s] [Line: %d]\n",
+                message,
+                file,
+                line
+            );
+
+            FF::Logger::GetInstance().Log(
+                buffer,
+                FF::LogVerbosity::Error,
+                message
+            );
+
+            MessageBoxA(
+                nullptr,
+                buffer,
+                "Assert Entered",
+                MB_ICONERROR | MB_OK
+            );
+
+            std::abort();
+        }
+    }
+}
 
 #ifdef FF_DEBUG
-    # define ASSERT(condition, message) \
-    { \
-    if (!(condition)) \
-    { \
-    char buffer[LOG_TEMPLATE_LENGTH]; \
-    sprintf_s(buffer, "[Assert] [File: %s] [Line: %d] ", __FILE__, __LINE__); \
-    FF::Logger::GetInstance().Log(buffer, FF::LogVerbosity::Error, message); \
-    std::terminate(); \
-    } \
-    }
 
-#define ASSERT_NO_ENTRY() ASSERT(false, "No entry assert entered")
+#define ASSERT(condition, message) \
+    {FF::AssertImpl((condition), (message), __FILE__, __LINE__);}
+
+#define ASSERT_NO_ENTRY() \
+    ASSERT(false, "No entry assert entered")
 
 #else
     #   define ASSERT(condition, message) {}

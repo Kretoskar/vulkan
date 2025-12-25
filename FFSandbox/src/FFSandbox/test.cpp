@@ -9,8 +9,9 @@
 #include "FFCore/Core/Types.h"
 #include "FFCore/Core/HString.h"
 #include "FFCore/Math/Vec3.h"
-#include "FFEngine/test.h"
 #include "FFVulkan/test.h"
+
+#include "FFEngine/Engine.h"
 
 
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -23,10 +24,6 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
 
 int main(int argc, char* argv[])
 {
-    FF::Vec3 v(100.123f, 100.123f, 100.123f);
-    
-    LOG_MESSAGE(v.ToString().Get())
-    
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
 
@@ -46,8 +43,8 @@ int main(int argc, char* argv[])
     }
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
-
-    ghi();
+    
+    FFE::Engine engine;
     
     while (!glfwWindowShouldClose(window))
     {

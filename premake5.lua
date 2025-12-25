@@ -1,5 +1,6 @@
 workspace "FF"
 	language "C++"
+	cppdialect "C++20"
 	architecture "x86_64"
 	startproject "FFSandbox"
 	configurations { "Debug", "Release" }
