@@ -10,6 +10,8 @@
 #include "FFCore/Core/HString.h"
 #include "FFCore/Math/Vec3.h"
 #include "FFEngine/test.h"
+#include "FFVulkan/test.h"
+
 
 void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -45,6 +47,8 @@ int main(int argc, char* argv[])
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
 
+    ghi();
+    
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();

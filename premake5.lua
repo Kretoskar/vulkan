@@ -59,8 +59,8 @@ project "FFCore"
 		runtime "Release"
 		optimize "on"
 
-project "FFEngine"
-	location "FFEngine"
+project "FFVulkan"
+	location "FFVulkan"
     kind "StaticLib"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -117,6 +117,66 @@ project "FFEngine"
 		runtime "Release"
 		optimize "on"
 
+project "FFEngine"
+	location "FFEngine"
+    kind "StaticLib"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("obj/" .. outputdir .. "/%{prj.name}")
+
+	files
+    {
+        "%{prj.name}/include/**.h",
+        "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.cpp"
+    }
+
+	includedirs
+	{
+		"%{prj.name}/include",
+		"FFCore/include",
+		"FFVulkan/include",
+		"../../VulkanSDK/1.4.335.0/Include",
+	}
+
+	links
+	{
+		"FFCore",
+		"FFVulkan",
+		"../../VulkanSDK/1.4.335.0/Lib/vulkan-1.lib",
+		
+		-- debug only
+		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Toolsd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-diffd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-optd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/OGLCompilerd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/glslangd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/OSDependentd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/GenericCodeGend.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
+		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
+	}
+	
+	includeGLFW()
+	
+	dependson { "FFCore", "FFVulkan" }
+
+	filter { "system:windows" }
+    	links { "OpenGL32" }
+		
+	filter {}
+	
+		filter "configurations:Debug"
+		defines "FF_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+    filter "configurations:Release"
+		defines "FF_RELEASE"
+		runtime "Release"
+		optimize "on"
+
 project "FFSandbox"
 	location "FFSandbox"
     kind "ConsoleApp"
@@ -134,6 +194,7 @@ project "FFSandbox"
 	includedirs
 	{
 		"FFCore/include",
+		"FFVulkan/include",
 		"FFEngine/include",
 		"FFSandbox/include",
 		"../../VulkanSDK/1.4.335.0/Include",
@@ -143,6 +204,7 @@ project "FFSandbox"
 	{
 		"FFCore",
 		"FFEngine",
+		"FFVulkan",
 		"../../VulkanSDK/1.4.335.0/Lib/vulkan-1.lib",
 		
 		-- debug only
