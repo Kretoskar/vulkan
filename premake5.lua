@@ -1,3 +1,5 @@
+include "dependencies.lua"
+
 workspace "FF"
 	language "C++"
 	cppdialect "C++20"
@@ -17,11 +19,11 @@ workspace "FF"
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 function includeGLFW()
-	includedirs "vendor/GLFW/Include"
+	includedirs "%{IncludeDir.GLFW}"
 end
 
 function linkGLFW()
-	libdirs "vendor/GLFW/lib-vc2022"
+	libdirs "%{Library.GLFW}"
 
 	-- static lib should not link against GLFW
 	filter "kind:not StaticLib"
@@ -78,13 +80,13 @@ project "FFVulkan"
 	{
 		"%{prj.name}/include",
 		"FFCore/include",
-		"../../VulkanSDK/1.4.335.0/Include",
+		"%{IncludeDir.VulkanSDK}",
 	}
 
 	links
 	{
 		"FFCore",
-		"../../VulkanSDK/1.4.335.0/Lib/vulkan-1.lib",
+		"%{Library.Vulkan}",
 		
 		-- debug only
 		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
@@ -137,14 +139,14 @@ project "FFEngine"
 		"%{prj.name}/include",
 		"FFCore/include",
 		"FFVulkan/include",
-		"../../VulkanSDK/1.4.335.0/Include",
+		"%{IncludeDir.VulkanSDK}",
 	}
 
 	links
 	{
 		"FFCore",
 		"FFVulkan",
-		"../../VulkanSDK/1.4.335.0/Lib/vulkan-1.lib",
+		"%{Library.Vulkan}",
 		
 		-- debug only
 		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
@@ -198,7 +200,7 @@ project "FFSandbox"
 		"FFVulkan/include",
 		"FFEngine/include",
 		"FFSandbox/include",
-		"../../VulkanSDK/1.4.335.0/Include",
+		"%{IncludeDir.VulkanSDK}",
 	}
 
 	links
@@ -206,7 +208,7 @@ project "FFSandbox"
 		"FFCore",
 		"FFEngine",
 		"FFVulkan",
-		"../../VulkanSDK/1.4.335.0/Lib/vulkan-1.lib",
+		"%{Library.Vulkan}",
 		
 		-- debug only
 		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
