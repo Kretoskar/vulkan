@@ -20,4 +20,7 @@ namespace FFVk
 
         return result;
     }
+
+    const char* GetDebugSeverityStr(VkDebugUtilsMessageSeverityFlagBitsEXT Severity);
+    const char* GetDebugType(VkDebugUtilsMessageTypeFlagsEXT Type);
 }
