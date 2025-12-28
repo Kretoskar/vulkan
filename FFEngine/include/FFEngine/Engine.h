@@ -2,13 +2,15 @@
 
 #include "Rendering/VulkanRenderer.h"
 
+class GLFWwindow;
+
 namespace FFE
 {
     class Engine
     {
     public:
-        Engine()
-            : _vulkanRenderer("FFEngine App") {}
+        Engine(GLFWwindow* window)
+            : _vulkanRenderer("FFEngine App", window) {}
         ~Engine() = default;
 
     private:

@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <vector>
+#include <GLFW/glfw3.h>
 
 #include "FFCore/Core/Types.h"
 #include "FFVulkan/VulkanUtils.h"
@@ -108,24 +109,48 @@ namespace FFVk
             .pUserData = nullptr
         };
 
-        PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessenger = PFN_vkCreateDebugUtilsMessengerEXT(vkGetInstanceProcAddr(_instance, "vkCreateDebugUtilsMessengerEXT"));
-        ASSERT(vkCreateDebugUtilsMessenger, "Failed to create debug messenger")
-        
-        CallVkFunc(vkCreateDebugUtilsMessenger, "Failed to create debug utils messenger", _instance,  &MessengerCreateInfo, nullptr, &_debugMessenger);
+        VK_FIND_CALL_AND_CHECK
+        (
+            PFN_vkCreateDebugUtilsMessengerEXT,
+            _instance,
+            "Failed to create debug utils messenger",
+            _instance,  &MessengerCreateInfo, nullptr, &_debugMessenger
+        )
     }
 
-    VulkanCore::VulkanCore(const char* appName)
+    void VulkanCore::CreateSurface(GLFWwindow* window)
+    {
+        VK_CALL
+        (
+            glfwCreateWindowSurface,
+            "Failed to create surface",
+            _instance, window, nullptr, &_surface
+        )
+    }
+
+    VulkanCore::VulkanCore(const char* appName, GLFWwindow* window)
     {
         CreateInstance(appName);
         CreateDebugCallback();
+        CreateSurface(window);
     }
 
     VulkanCore::~VulkanCore()
     {
-        PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugUtilsMessengerEXT");
-        ASSERT(vkDestroyDebugUtilsMessenger, "Cannot find address of vkDestroyDebugUtilsMessengerEXT")
+        VK_FIND_AND_CALL
+        (
+            PFN_vkDestroySurfaceKHR,
+            _instance,
+            _instance, _surface, nullptr
+        )
+
+        VK_FIND_AND_CALL
+        (
+            PFN_vkDestroyDebugUtilsMessengerEXT,
+            _instance,
+            _instance, _debugMessenger, nullptr
+        )
         
-        vkDestroyDebugUtilsMessenger(_instance, _debugMessenger, nullptr);
         vkDestroyInstance(_instance, nullptr);
     }
 }

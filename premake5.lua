@@ -18,19 +18,6 @@ workspace "FF"
 
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-function includeGLFW()
-	includedirs "%{IncludeDir.GLFW}"
-end
-
-function linkGLFW()
-	libdirs "%{Library.GLFW}"
-
-	-- static lib should not link against GLFW
-	filter "kind:not StaticLib"
-		links "glfw3"
-	filter {}
-end
-
 project "FFCore"
 	location "FFCore"
 	kind "StaticLib"
@@ -47,10 +34,10 @@ project "FFCore"
 	
 	includedirs
 	{
-		"%{prj.name}/include"
+		"%{prj.name}/include",
+		"%{IncludeDir.GLFW}"
 	}
-	
-	includeGLFW()
+
 	
 	filter "configurations:Debug"
 		defines "FF_DEBUG"
@@ -81,12 +68,13 @@ project "FFVulkan"
 		"%{prj.name}/include",
 		"FFCore/include",
 		"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.GLFW}"
 	}
 
 	links
 	{
 		"FFCore",
-		"%{Library.Vulkan}",
+		"%{Library.Vulkan}"
 		
 		-- debug only
 		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
@@ -100,8 +88,6 @@ project "FFVulkan"
 		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
 		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
 	}
-	
-	includeGLFW()
 	
 	dependson { "FFCore" }
 
@@ -140,6 +126,7 @@ project "FFEngine"
 		"FFCore/include",
 		"FFVulkan/include",
 		"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.GLFW}",
 	}
 
 	links
@@ -160,8 +147,6 @@ project "FFEngine"
 		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
 		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
 	}
-	
-	includeGLFW()
 	
 	dependson { "FFCore", "FFVulkan" }
 
@@ -201,7 +186,15 @@ project "FFSandbox"
 		"FFEngine/include",
 		"FFSandbox/include",
 		"%{IncludeDir.VulkanSDK}",
+		"%{IncludeDir.GLFW}"
 	}
+
+	
+	libdirs
+	{
+		"%{Library.GLFW}"
+	}
+
 
 	links
 	{
@@ -209,6 +202,7 @@ project "FFSandbox"
 		"FFEngine",
 		"FFVulkan",
 		"%{Library.Vulkan}",
+		"glfw3"
 		
 		-- debug only
 		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
@@ -222,9 +216,6 @@ project "FFSandbox"
 		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
 		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
 	}
-	
-	includeGLFW()
-	linkGLFW()
 	
 	filter "configurations:Debug"
 		defines "FF_DEBUG"

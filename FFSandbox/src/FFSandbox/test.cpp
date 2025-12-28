@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
     
-    FFE::Engine engine;
+    FFE::Engine engine(window);
     
     while (!glfwWindowShouldClose(window))
     {
