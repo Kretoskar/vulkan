@@ -14,13 +14,13 @@ namespace FFVk
         __VA_ARGS__                                                             \
         );
 
-    #define VK_CALL(Func, ErrorMessage, ...)                                    \
-        CallVkFunc(                                                             \
+    #define VK_CALL_AND_CHECK(Func, ErrorMessage, ...)                          \
+        CallAndCheckVkFunc(                                                             \
         Func,                                                                   \
         ErrorMessage,                                                           \
         __VA_ARGS__                                                             \
         );
-
+    
     #define VK_FIND_AND_CALL(FuncType, instance, ...)                           \
         FindAndCallVKFunc<FuncType>(                                            \
         instance,                                                               \
@@ -30,7 +30,7 @@ namespace FFVk
 
     
     template<typename Func, typename... Args>
-    VkResult CallVkFunc(Func&& func, const char* errorMesssage, Args&&... args)
+    VkResult CallAndCheckVkFunc(Func&& func, const char* errorMesssage, Args&&... args)
     {
         VkResult result = std::forward<Func>(func)(
             std::forward<Args>(args)...
@@ -62,7 +62,7 @@ namespace FFVk
     {
         FuncT func = FindVKFunc<FuncT>(instance, funcName);
 
-        return CallVkFunc(
+        return CallAndCheckVkFunc(
             func,
             errorMessage,
             std::forward<Args>(args)...

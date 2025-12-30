@@ -89,7 +89,7 @@ namespace FFVk
             .ppEnabledExtensionNames = Extensions.data()
         };
 
-        CallVkFunc(vkCreateInstance, "Failed when trying to create instance", &CreateInfo, nullptr, &_instance);
+        CallAndCheckVkFunc(vkCreateInstance, "Failed when trying to create instance", &CreateInfo, nullptr, &_instance);
     }
 
     void VulkanCore::CreateDebugCallback()
@@ -120,7 +120,7 @@ namespace FFVk
 
     void VulkanCore::CreateSurface(GLFWwindow* window)
     {
-        VK_CALL
+        VK_CALL_AND_CHECK
         (
             glfwCreateWindowSurface,
             "Failed to create surface",
