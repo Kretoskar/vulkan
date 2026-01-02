@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #define i8 int8_t
 #define u8 uint8_t
 
