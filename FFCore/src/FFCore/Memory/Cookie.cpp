@@ -73,6 +73,8 @@ namespace FF
 
     Counters& AllocatorStats::GetOrCreate(Cookie ID)
     {
+        // TODO: FIXME: Now map uses the custom new with cookies and it breaks bcs ofd multiple access
+        
         // unordered_map isn't thread-safe. Always lock and rely on atomics for performance.
         std::lock_guard<std::mutex> lock(Mutex());
         return Map().try_emplace(ID).first->second;
@@ -84,4 +86,34 @@ namespace FF
         auto it = Map().find(ID);
         return (it == Map().end()) ? nullptr : &it->second;
     }
+}
+
+void* operator new(std::size_t sz)
+{
+    return FF::CookieMalloc(sz);
+}
+
+void operator delete(void* p) noexcept
+{
+    FF::CookieFree(p);
+}
+
+void* operator new[](std::size_t sz)
+{
+    return FF::CookieMalloc(sz);
+}
+
+void operator delete[](void* p) noexcept {
+    FF::CookieFree(p);
+}
+
+// handle sized delete in case I feel fancy
+void operator delete(void* p, std::size_t) noexcept
+{
+    FF::CookieFree(p);
+}
+
+void operator delete[](void* p, std::size_t) noexcept
+{
+    FF::CookieFree(p);
 }

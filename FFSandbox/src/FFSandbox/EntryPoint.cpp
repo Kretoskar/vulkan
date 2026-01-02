@@ -9,6 +9,8 @@
 #include "FFCore/Core/Types.h"
 #include "FFCore/Core/HString.h"
 #include "FFCore/Math/Vec3.h"
+#include "FFCore/Memory/Cookie.h"
+
 
 #include "FFEngine/Engine.h"
 
@@ -21,8 +23,18 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
     }
 }
 
+struct A
+{
+    i32 x, y,z;
+};
+
 int main(int argc, char* argv[])
 {
+    {
+        COOKIE_SCOPE("Global")
+        A* a = new A();
+        FF::AllocatorStats::Dump();
+    }
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
 
@@ -49,7 +61,7 @@ int main(int argc, char* argv[])
     {
         glfwPollEvents();
     }
-
+    
     glfwTerminate();
 
     return 0;
