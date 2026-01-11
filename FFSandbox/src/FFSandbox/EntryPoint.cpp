@@ -29,6 +29,8 @@ struct A
 
 int main(int argc, char* argv[])
 {
+    FF::Memory::MemoryTagScope scope(FF::Memory::MemoryTag::Rendering);
+    
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
 
@@ -48,7 +50,8 @@ int main(int argc, char* argv[])
     }
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
-    
+
+    FF::Memory::MemoryTagScope (FF::Memory::MemoryTag::Core);
     FFE::Engine engine(window);
     
     while (!glfwWindowShouldClose(window))
@@ -58,7 +61,7 @@ int main(int argc, char* argv[])
 
     glfwTerminate();
 
-    FF::Memory::GlobalAllocationMetrics.Dump();
+    FF::Memory::DumpAllTags();
     
     return 0;
 }
