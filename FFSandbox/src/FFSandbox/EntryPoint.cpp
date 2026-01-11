@@ -9,6 +9,7 @@
 #include "FFCore/Core/Types.h"
 #include "FFCore/Core/HString.h"
 #include "FFCore/Math/Vec3.h"
+#include "FFCore/Memory/AllocTracker.h"
 
 #include "FFEngine/Engine.h"
 
@@ -20,6 +21,11 @@ void GLFW_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
+
+struct A
+{
+    i32 a,b,c;
+};
 
 int main(int argc, char* argv[])
 {
@@ -33,7 +39,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(width, height, "FF", nullptr, nullptr);
-	
+
     if (!window)
     {
         glfwTerminate();
@@ -52,5 +58,7 @@ int main(int argc, char* argv[])
 
     glfwTerminate();
 
+    FF::Memory::GlobalAllocationMetrics.Dump();
+    
     return 0;
 }
