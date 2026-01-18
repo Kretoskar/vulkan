@@ -51,7 +51,6 @@ int main(int argc, char* argv[])
 
     glfwSetKeyCallback(window, GLFW_KeyCallback);
 
-    FF::Memory::MemoryTagScope (FF::Memory::MemoryTag::Core);
     FFE::Engine engine(window);
     
     while (!glfwWindowShouldClose(window))

@@ -92,5 +92,24 @@ namespace FF::Memory
     };
 
     
-    inline void DumpAllTags();
+    inline void DumpAllTags()
+    {
+        for (u32 i = 0; i < static_cast<u32>(MemoryTag::Count); ++i)
+        {
+            const MemoryTag tag = static_cast<MemoryTag>(i);
+            const TagMetrics& m = GlobalTagMetrics[i];
+
+            const u64 allocated = m.Allocated.load(std::memory_order_relaxed);
+            const u64 freed = m.Freed.load(std::memory_order_relaxed);
+            const u64 usage = allocated - freed;
+
+            if (allocated == 0 && freed == 0)
+            {
+                continue;
+            }
+
+            LOG_MESSAGE("[%s] Allocated: %llu Freed: %llu Usage: %llu",
+                ToString(tag).Get(), allocated, freed, usage)
+        }
+    }
 }
