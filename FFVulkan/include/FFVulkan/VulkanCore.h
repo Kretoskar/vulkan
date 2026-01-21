@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "VulkanPhysicalDevice.h"
 #include "vulkan/vulkan_core.h"
 
 struct GLFWwindow;
@@ -20,5 +21,7 @@ namespace FFVk
         VkInstance _instance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
         VkSurfaceKHR _surface = VK_NULL_HANDLE;
+        VulkanPhysicalDevices _physicalDevices;
+        u32 _queueFamily{};
     };
 }

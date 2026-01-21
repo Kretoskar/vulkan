@@ -133,6 +133,8 @@ namespace FFVk
         CreateInstance(appName);
         CreateDebugCallback();
         CreateSurface(window);
+        _physicalDevices.Init(_instance, _surface);
+        _queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
     }
 
     VulkanCore::~VulkanCore()
