@@ -158,16 +158,17 @@ namespace FFVk
                 device, surface, &numPresentationModes, nullptr
             )
 
-            _physicalDevices[i].PresentingModes.resize(numPresentationModes);
+            _physicalDevices[i].PresentModes.resize(numPresentationModes);
 
             VK_CALL_AND_CHECK
             (
                 vkGetPhysicalDeviceSurfacePresentModesKHR,
                 "Couldn't get physical device surface present modes",
-                device, surface, &numPresentationModes, _physicalDevices[i].PresentingModes.data()
+                device, surface, &numPresentationModes, _physicalDevices[i].PresentModes.data()
             )
 
             vkGetPhysicalDeviceMemoryProperties(device, &_physicalDevices[i].MemoryProperties);
+            vkGetPhysicalDeviceFeatures(device, &_physicalDevices[i].Features);
         }
     }
 

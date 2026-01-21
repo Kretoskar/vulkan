@@ -17,11 +17,13 @@ namespace FFVk
         void CreateInstance(const char* appName);
         void CreateDebugCallback();
         void CreateSurface(GLFWwindow* window);
+        void CreateDevice();
         
         VkInstance _instance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
         VkSurfaceKHR _surface = VK_NULL_HANDLE;
         VulkanPhysicalDevices _physicalDevices;
         u32 _queueFamily{};
+        VkDevice _device = VK_NULL_HANDLE;
     };
 }

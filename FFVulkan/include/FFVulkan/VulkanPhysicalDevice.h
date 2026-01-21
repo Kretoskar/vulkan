@@ -16,7 +16,8 @@ namespace FFVk
         std::vector<VkSurfaceFormatKHR> SurfaceFormats;
         VkSurfaceCapabilitiesKHR SurfaceCapabilities;
         VkPhysicalDeviceMemoryProperties MemoryProperties;
-        std::vector<VkPresentModeKHR> PresentingModes;
+        std::vector<VkPresentModeKHR> PresentModes;
+        VkPhysicalDeviceFeatures Features;
     };
 
     class VulkanPhysicalDevices

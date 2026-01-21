@@ -128,6 +128,58 @@ namespace FFVk
         )
     }
 
+    void VulkanCore::CreateDevice()
+    {
+        float qPriorities[] = { 1.0f };
+
+		VkDeviceQueueCreateInfo qInfo =
+		{
+			.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+			.queueFamilyIndex = _queueFamily,
+			.queueCount = 1,
+			.pQueuePriorities = &qPriorities[0]
+		};
+
+		std::vector<const char*> DevExts =
+		{
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME
+		};
+	
+		ASSERT (_physicalDevices.SelectedDevice().Features.geometryShader,
+			"Geometry Shader is not supported!")
+	
+		ASSERT (_physicalDevices.SelectedDevice().Features.tessellationShader,
+			"The Tessellation Shader is not supported!")
+
+		VkPhysicalDeviceFeatures DeviceFeatures = { 0 };
+		DeviceFeatures.geometryShader = VK_TRUE;
+		DeviceFeatures.tessellationShader = VK_TRUE;
+
+		VkDeviceCreateInfo DeviceCreateInfo =
+		{
+			.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+			.queueCreateInfoCount = 1,
+			.pQueueCreateInfos = &qInfo,
+			.enabledLayerCount = 0,			// DEPRECATED
+			.ppEnabledLayerNames = nullptr,    // DEPRECATED
+			.enabledExtensionCount = (u32)DevExts.size(),
+			.ppEnabledExtensionNames = DevExts.data(),
+			.pEnabledFeatures = &DeviceFeatures
+		};
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkCreateDevice,
+    		"Couldn't create device",
+    		_physicalDevices.SelectedDevice().PhysDevice, &DeviceCreateInfo, nullptr, &_device
+    	)
+    }
+
     VulkanCore::VulkanCore(const char* appName, GLFWwindow* window)
     {
         CreateInstance(appName);
@@ -135,10 +187,13 @@ namespace FFVk
         CreateSurface(window);
         _physicalDevices.Init(_instance, _surface);
         _queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
+    	CreateDevice();
     }
 
     VulkanCore::~VulkanCore()
     {
+		vkDestroyDevice(_device, nullptr);
+    	
         VK_FIND_AND_CALL
         (
             PFN_vkDestroySurfaceKHR,
