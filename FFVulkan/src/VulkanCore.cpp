@@ -29,8 +29,7 @@ namespace FFVk
             }
         
             LOG_ERROR(
-                "\nVULKAN ERROR\n"
-                "Severity: %s\n"
+                "\nVULKAN %s\n"
                 "Type: %s\n"
                 "Message:\n%s\n"
                 "Objects: %s\n",
@@ -180,6 +179,157 @@ namespace FFVk
     	)
     }
 
+    u32 VulkanCore::ChooseNumImages(const VkSurfaceCapabilitiesKHR& capabilities)
+    {
+    	u32 requestedImagesNum = capabilities.minImageCount + 1;
+
+    	// 0 means no maximum limit
+    	if (capabilities.maxImageCount > 0 && requestedImagesNum > capabilities.maxImageCount)
+    	{
+    		return capabilities.maxImageCount;
+    	}
+
+    	return requestedImagesNum;
+    }
+
+    VkPresentModeKHR VulkanCore::ChoosePresentMode(const std::vector<VkPresentModeKHR>& presentModes)
+    {
+    	for (u16 i = 0; i < presentModes.size(); ++i)
+    	{
+    		// like FIFO but if a new frame is ready and there is a frame waiting for VSync update to be presented
+    		// the new frame will replace the one waiting
+    		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+    		{
+    			return presentModes[i];
+    		}
+    	}
+
+    	// FIFO is always supported
+    	return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    VkSurfaceFormatKHR VulkanCore::ChooseSurfaceFormatAndColorSpace(const std::vector<VkSurfaceFormatKHR>& surfaceFormats)
+    {
+    	for (u16 i = 0; i < surfaceFormats.size(); ++i)
+    	{
+    		if (surfaceFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB &&
+    			surfaceFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+    		{
+    			return surfaceFormats[i];
+    		}
+    	}
+
+    	return surfaceFormats[0];
+    }
+
+    VkImageView VulkanCore::CreateImageView(VkDevice device, VkImage image, VkFormat format,
+	    VkImageAspectFlags aspectFlags, VkImageViewType imageViewType, uint16_t layerCount, uint16_t mipLevel)
+    {
+    	VkImageViewCreateInfo createInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    		.pNext = nullptr,
+    		.flags = 0,
+    		.image = image,
+    		.viewType = imageViewType,
+    		.format = format,
+    		.components =
+    		{
+    			.r = VK_COMPONENT_SWIZZLE_IDENTITY,
+    			.g = VK_COMPONENT_SWIZZLE_IDENTITY,
+    			.b = VK_COMPONENT_SWIZZLE_IDENTITY,
+    			.a = VK_COMPONENT_SWIZZLE_IDENTITY
+    		},
+    		.subresourceRange =
+    		{
+    			.aspectMask = aspectFlags,
+    			.baseMipLevel = 0,
+    			.levelCount = mipLevel,
+    			.baseArrayLayer = 0,
+    			.layerCount = layerCount
+    		}
+    	};
+
+    	VkImageView imageView;
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkCreateImageView,
+    		"Failed to create image view",
+    		_device, &createInfo, nullptr, &imageView
+    	)
+    	
+    	return imageView;
+    }
+
+    void VulkanCore::CreateSwapChain()
+    {
+    	const VkSurfaceCapabilitiesKHR& surfaceCapabilities = _physicalDevices.SelectedDevice().SurfaceCapabilities;
+
+    	u32 numImages = ChooseNumImages(surfaceCapabilities);
+
+    	const std::vector<VkPresentModeKHR>& presentModes = _physicalDevices.SelectedDevice().PresentModes;
+    	VkPresentModeKHR presentMode = ChoosePresentMode(presentModes);
+
+		// prefer BGRA 8-bit SRGB with SRGB nonlinear color space
+    	VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormatAndColorSpace(_physicalDevices.SelectedDevice().SurfaceFormats);
+
+    	VkSwapchainCreateInfoKHR swapChainCreateInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+    		.pNext = nullptr,
+    		.flags = 0,
+    		.surface = _surface,
+    		.minImageCount = numImages,
+    		.imageFormat = surfaceFormat.format,
+    		.imageColorSpace = surfaceFormat.colorSpace,
+    		.imageExtent = surfaceCapabilities.currentExtent,
+    		.imageArrayLayers = 1,
+    		.imageUsage = (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
+    		.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    		.queueFamilyIndexCount = 1,
+    		.pQueueFamilyIndices = &_queueFamily,
+    		.preTransform = surfaceCapabilities.currentTransform,
+    		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+    		.presentMode = presentMode,
+    		.clipped = VK_TRUE
+    	};
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkCreateSwapchainKHR,
+    		"Failed to create swapchain",
+    		_device, &swapChainCreateInfo, nullptr, &_swapChain
+    	)
+
+    	u32 NumSwapChainImages = 0;
+    	VK_CALL_AND_CHECK
+    	(
+    		vkGetSwapchainImagesKHR,
+    		"Failed to get swapchain images",
+    		_device, _swapChain, &NumSwapChainImages, nullptr
+    	)
+
+    	_images.resize(NumSwapChainImages);
+    	_imageViews.resize(NumSwapChainImages);
+
+    	VK_CALL_AND_CHECK
+		(
+			vkGetSwapchainImagesKHR,
+			"Failed to get swapchain images",
+			_device, _swapChain, &NumSwapChainImages, _images.data()
+		)
+    	
+    	for (u16 i = 0; i < NumSwapChainImages; ++i)
+    	{
+    		constexpr u16 layerCount = 1;
+    		constexpr u16 mipLevels = 1;
+    		
+    		_imageViews[i] = CreateImageView(_device, _images[i], surfaceFormat.format,
+    			VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_VIEW_TYPE_2D, layerCount, mipLevels);
+    	}
+    }
+
     VulkanCore::VulkanCore(const char* appName, GLFWwindow* window)
     {
         CreateInstance(appName);
@@ -188,10 +338,18 @@ namespace FFVk
         _physicalDevices.Init(_instance, _surface);
         _queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
     	CreateDevice();
+    	CreateSwapChain();
     }
 
     VulkanCore::~VulkanCore()
     {
+		for (u16 i = 0; i < _imageViews.size(); ++i)
+		{
+			vkDestroyImageView(_device, _imageViews[i], nullptr);
+		}
+
+    	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+    	
 		vkDestroyDevice(_device, nullptr);
     	
         VK_FIND_AND_CALL
