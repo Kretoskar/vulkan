@@ -19,6 +19,15 @@ namespace FF::Memory
         Count
     };
 
+    struct AllocationHeader
+    {
+        u64 Size;
+        MemoryTag Tag;
+        u32 Magic;
+    };
+    
+    static constexpr u32 memMagic = 0xB00B6967;
+    
     inline HString ToString(MemoryTag t)
     {
         switch (t)
@@ -111,5 +120,33 @@ namespace FF::Memory
             LOG_MESSAGE("[%s] Allocated: %llu Freed: %llu Usage: %llu",
                 ToString(tag).Get(), allocated, freed, usage)
         }
+    }
+
+    inline void* AllocateWithHeader(size_t size)
+    {
+        const MemoryTag tag = TL_CurrentTag;
+
+        const size_t total = sizeof(AllocationHeader) + size;
+        void* raw = std::malloc(total);
+        if (!raw)
+        {
+            throw std::bad_alloc{};
+        }
+
+        auto* h = static_cast<AllocationHeader*>(raw);
+        h->Size  = static_cast<u64>(size);
+        h->Tag   = tag;
+        h->Magic = memMagic;
+        
+        GlobalAllocationMetrics.TotalAllocated.fetch_add(size, std::memory_order_relaxed);
+        GlobalTagMetrics[static_cast<size_t>(tag)].Allocated.fetch_add(size, std::memory_order_relaxed);
+
+        // Return pointer after header
+        return static_cast<void*>(h + 1);
+    }
+
+    inline AllocationHeader* HeaderFromUserPtr(void* p)
+    {
+        return static_cast<AllocationHeader*>(p) - 1;
     }
 }

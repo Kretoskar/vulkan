@@ -5,35 +5,37 @@
 
 void* operator new(size_t size)
 {
-    using namespace FF::Memory;
-
-    GlobalAllocationMetrics.TotalAllocated.fetch_add(size, std::memory_order_relaxed);
-
-    const MemoryTag tag = TL_CurrentTag;
-    GlobalTagMetrics[static_cast<size_t>(tag)].Allocated.fetch_add(size, std::memory_order_relaxed);
-
-    if (void* p = std::malloc(size))
-    {
-        return p;
-    }
-
-    throw std::bad_alloc{};
-}
-
-void operator delete(void* memory, size_t size)
-{
-    using namespace FF::Memory;
-
-    GlobalAllocationMetrics.TotalFreed.fetch_add(size, std::memory_order_relaxed);
-
-    const MemoryTag tag = TL_CurrentTag;
-    GlobalTagMetrics[static_cast<size_t>(tag)].Freed.fetch_add(size, std::memory_order_relaxed);
-
-    std::free(memory);
+    return FF::Memory::AllocateWithHeader(size);
 }
 
 void operator delete(void* memory)
 {
-    ASSERT_NO_ENTRY("Don't use unsized delete")
-    free(memory);
+    if (!memory)
+    {
+        return;
+    }
+
+    using namespace FF::Memory;
+
+    AllocationHeader* h = HeaderFromUserPtr(memory);
+    
+    if (h->Magic != memMagic)
+    {
+        // pointer not from our allocator
+        std::free(h);
+        return;
+    }
+
+    const u64 size = h->Size;
+    const MemoryTag tag = h->Tag;
+    
+    GlobalAllocationMetrics.TotalFreed.fetch_add(size, std::memory_order_relaxed);
+    GlobalTagMetrics[static_cast<size_t>(tag)].Freed.fetch_add(size, std::memory_order_relaxed);
+
+    std::free(h);
+}
+
+void operator delete(void* memory, size_t size)
+{
+    ::operator delete(memory);
 }

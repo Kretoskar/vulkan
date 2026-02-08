@@ -30,6 +30,13 @@ struct A
 int main(int argc, char* argv[])
 {
     FF::Memory::MemoryTagScope scope(FF::Memory::MemoryTag::Rendering);
+    i32* i;
+    {
+        FF::Memory::MemoryTagScope scope2(FF::Memory::MemoryTag::Default);
+        i = new int (1);
+    }
+
+    delete i;
     
     constexpr i32 width = 1080;
     constexpr i32 height = 720;
