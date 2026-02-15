@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         LOG_ERROR("Failed to create GLFW window")
         return 3;
     }
-
+    
     glfwSetKeyCallback(window, GLFW_KeyCallback);
 
     FFE::Engine engine(window);

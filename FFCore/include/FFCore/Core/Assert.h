@@ -22,11 +22,7 @@ namespace FF
                 line
             );
 
-            FF::Logger::GetInstance().Log(
-                buffer,
-                FF::LogVerbosity::Error,
-                message
-            );
+            LOG_ERROR(message);
 
             MessageBoxA(
                 nullptr,

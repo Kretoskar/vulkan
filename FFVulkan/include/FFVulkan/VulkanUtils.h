@@ -36,7 +36,7 @@ namespace FFVk
             std::forward<Args>(args)...
         );
 
-        char buffer[LOG_TEMPLATE_LENGTH];
+        char buffer[FF::LOG_TEMPLATE_LENGTH];
         sprintf_s(buffer, "Vulkan Error %d\n%s", result, errorMesssage);
         
         ASSERT(result == VK_SUCCESS, buffer)
