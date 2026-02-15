@@ -13,10 +13,12 @@
 #include <thread>
 
 #include "Types.h"
+#include "FFCore/Containers/RingBuffer.h"
 
 namespace FF
 {
     inline constexpr u16 LOG_TEMPLATE_LENGTH = 256;
+
     
     enum LogVerbosity : u8
     {
@@ -33,6 +35,7 @@ namespace FF
         char message[1024];
     };
 
+    
     class Logger
     {
     public:
@@ -91,11 +94,17 @@ namespace FF
         std::deque<LogItem> queue;
         
         std::ofstream logFile;
+
+        struct LogRingEntry
+        {
+            FF::LogVerbosity level;
+            char message[FF::Logger::logLettersMaxCount];
+        };
         
-        std::mutex ringMutex;
-        char logLines[loggedLineBufferMaxCount][logLettersMaxCount] = {};
-        LogVerbosity logLinesVerbosity[loggedLineBufferMaxCount] = {};
-        u16 loggedLineBufferCurrCount = 0;
+        RingBuffer<LogRingEntry, FF::Logger::loggedLineBufferMaxCount> ring;
+
+    public:
+        u16 GetRecentLogs(LogRingEntry* out, u16 maxCount) const;
     };
 }
 

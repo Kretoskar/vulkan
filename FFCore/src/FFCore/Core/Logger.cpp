@@ -88,24 +88,10 @@ namespace FF
 
     void Logger::PushToRingBuffer(LogVerbosity level, const char* msgOnly)
     {
-        std::lock_guard<std::mutex> lock(ringMutex);
-
-        if (loggedLineBufferCurrCount >= loggedLineBufferMaxCount)
-        {
-            for (i32 i = 0; i < (i32)loggedLineBufferMaxCount - 1; ++i)
-            {
-                logLinesVerbosity[i] = logLinesVerbosity[i + 1];
-                std::swap(logLines[i], logLines[i + 1]);
-            }
-            logLinesVerbosity[loggedLineBufferMaxCount - 1] = level;
-            strcpy_s(logLines[loggedLineBufferMaxCount - 1], msgOnly);
-        }
-        else
-        {
-            logLinesVerbosity[loggedLineBufferCurrCount] = level;
-            strcpy_s(logLines[loggedLineBufferCurrCount], msgOnly);
-            loggedLineBufferCurrCount++;
-        }
+        LogRingEntry e{};
+        e.level = level;
+        strcpy_s(e.message, msgOnly);
+        ring.Push(e);
     }
 
     void Logger::WorkerLoop()
@@ -166,5 +152,10 @@ namespace FF
         {
             logFile.close();
         }
+    }
+
+    u16 Logger::GetRecentLogs(LogRingEntry* out, uint16_t maxCount) const
+    {
+        return static_cast<u16>(ring.CopyTo(out, maxCount));
     }
 }
