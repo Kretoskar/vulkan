@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <string>
 
 #include "Assert.h"
@@ -31,6 +32,7 @@ namespace FF
         [[nodiscard]]
         const char* Get() const
         {
+            std::lock_guard<std::mutex> lock(hashTableMutex);
             return hashTable[_hash];
         }
 
@@ -54,6 +56,8 @@ namespace FF
 
             h %= hashTableSize;
 
+            std::lock_guard<std::mutex> lock(hashTableMutex);
+            
 #ifdef FF_DEBUG
             // Check for hash conflicts
             if (hashTable[h][0] != '\0')
@@ -67,18 +71,21 @@ namespace FF
                 }
             }
 #endif
+            if (hashTable[h][0] == '\0')
+            {
+                const size_t len = std::min<std::size_t>(std::strlen(start), hashTableMaxStringLength - 1);
+                std::memcpy(hashTable[h], start, len);
+                hashTable[h][len] = '\0';
+            }
             
-            const size_t len = std::min<std::size_t>(std::strlen(start), hashTableMaxStringLength - 1);
-            std::memcpy(hashTable[h], start, len);
-            hashTable[h][len] = '\0';
-
             return h;
         }
 
         static constexpr u32 hashTableSize = 65536;
         static constexpr u32 hashTableMaxStringLength = 512;
         static char hashTable[hashTableSize][hashTableMaxStringLength];
-
+        static std::mutex hashTableMutex;
+        
     public:
         bool operator==(const HString& other) const
         {
