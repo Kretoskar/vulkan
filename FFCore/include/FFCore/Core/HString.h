@@ -11,7 +11,7 @@ namespace FF
     {
     public:
         HString()
-            : _hash(hashTableSize + 1) {}
+            : _hash(0) {}
 
         HString(const char* s)
             : _hash(Hash(s)) {}
@@ -25,7 +25,7 @@ namespace FF
         static HString None;
 
     private:
-        u32 _hash {};
+        u32 _hash {0};
 
     public:
         [[nodiscard]]
@@ -36,21 +36,23 @@ namespace FF
 
     private:
         // hash using prime numbers
-        static constexpr u32 Hash(const char* s)
+        static u32 Hash(const char* s)
         {
+            if (!s)
+            {
+                return 0;
+            }
+
+            const char* start = s;
             u32 h = 37;
-            u32 size = 0;
 
             while (*s)
             {
                 h = (h * 54059) ^ (s[0] * 76963);
-                size++;
-                s++;
+                ++s;
             }
 
             h %= hashTableSize;
-
-            s = s - size;
 
 #ifdef FF_DEBUG
             // Check for hash conflicts
@@ -58,27 +60,17 @@ namespace FF
             {
                 for (u32 i = 0; i < hashTableMaxStringLength; i++)
                 {
-                    const char existingChar = hashTable[h][i];
-                    const char newChar = *(s + i);
-
-                    if ((existingChar == newChar) && newChar == '\0')
+                    if (std::strncmp(hashTable[h], start, hashTableMaxStringLength) != 0)
                     {
-                        break;
+                        ASSERT_NO_ENTRY(false, "HASH_CONFLICT")
                     }
-
-                    ASSERT(existingChar == newChar, "HASH_CONFLICT")
                 }
             }
 #endif
-
-            u32 i = 0;
-
-            while (*s)
-            {
-                hashTable[h][i] = *s;
-                i++;
-                s++;
-            }
+            
+            const size_t len = std::min<std::size_t>(std::strlen(start), hashTableMaxStringLength - 1);
+            std::memcpy(hashTable[h], start, len);
+            hashTable[h][len] = '\0';
 
             return h;
         }
