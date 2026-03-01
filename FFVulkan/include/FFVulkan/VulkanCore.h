@@ -16,8 +16,19 @@ namespace FFVk
         i32 GetNumImages();
         void CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers);
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
+        const VkImage& GetImage(u32 idx) const;
+        
+        void Cmd_ClearColorImage(
+            VkCommandBuffer                             commandBuffer,
+            VkImage                                     image,
+            VkImageLayout                               imageLayout,
+            const VkClearColorValue*                    color,
+            uint32_t                                    rangeCount,
+            const VkImageSubresourceRange*              ranges);
 
     private:
+        void CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
+        void CmdEnd(VkCommandBuffer commandBuffer);
         void CreateInstance(const char* appName);
         void CreateDebugCallback();
         void CreateSurface(GLFWwindow* window);

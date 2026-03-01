@@ -452,4 +452,49 @@ namespace FFVk
     {
     	vkFreeCommandBuffers(_device, _commandBufferPool, commandBuffers.size(), commandBuffers.data());
     }
+
+    const VkImage& VulkanCore::GetImage(u32 idx) const
+    {
+		ASSERT(idx < _images.size(), "Invalid image index")
+    	return _images[idx]; 
+    }
+
+    void VulkanCore::Cmd_ClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout,
+	    const VkClearColorValue* color, uint32_t rangeCount, const VkImageSubresourceRange* ranges)
+    {
+    	CmdBegin(commandBuffer, 0);
+
+		vkCmdClearColorImage(commandBuffer, image, imageLayout, color, rangeCount, ranges);
+    	
+    	CmdEnd(commandBuffer);
+    }
+
+    void VulkanCore::CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags)
+    {
+    	VkCommandBufferBeginInfo beginInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    		.pNext = nullptr,
+    		.flags = usageFlags,
+    		.pInheritanceInfo = nullptr,
+    	};
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkBeginCommandBuffer,
+    		"Failed to begin command buffer",
+    		commandBuffer,
+    		&beginInfo
+    	)
+    }
+
+    void VulkanCore::CmdEnd(VkCommandBuffer commandBuffer)
+    {
+    	VK_CALL_AND_CHECK
+    	(
+    		vkEndCommandBuffer,
+    		"Failed to end command buffer",
+    		commandBuffer
+    	)
+    }
 }
