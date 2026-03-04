@@ -26,6 +26,11 @@ namespace FFVk
             uint32_t                                    rangeCount,
             const VkImageSubresourceRange*              ranges);
 
+        // "custom" because vulkan already defines a macro for CreateSemaphore
+        static VkSemaphore CreateSemaphoreCustom(VkDevice Device);
+        static u32 AcquireNextImage(VkDevice Device, VkSwapchainKHR Swapchain, VkSemaphore Semaphore);
+        static void SubmitQueueAsync(VkQueue Queue, u32 SubmitCount, const VkSubmitInfo* Submits, VkFence Fence);
+
     private:
         void CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
         void CmdEnd(VkCommandBuffer commandBuffer);

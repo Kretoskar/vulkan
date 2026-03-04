@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "FFCore/Core/Types.h"
-#include "FFVulkan/VulkanUtils.h"
+#include "VulkanUtils.h"
 
 namespace FFVk
 {
@@ -467,6 +467,59 @@ namespace FFVk
 		vkCmdClearColorImage(commandBuffer, image, imageLayout, color, rangeCount, ranges);
     	
     	CmdEnd(commandBuffer);
+    }
+
+    VkSemaphore VulkanCore::CreateSemaphoreCustom(VkDevice Device)
+    {
+    	VkSemaphoreCreateInfo createInfo =
+		{
+    		.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+		};
+
+    	VkSemaphore semaphore;
+    	VK_CALL_AND_CHECK
+		(
+			vkCreateSemaphore,
+			"Failed to create semaphore",
+			Device,
+			&createInfo,
+			nullptr,
+			&semaphore
+		)
+    
+		return semaphore;
+    }
+
+    uint32_t VulkanCore::AcquireNextImage(VkDevice Device, VkSwapchainKHR Swapchain, VkSemaphore Semaphore)
+    {
+    	u32 imageIndex = 0;
+    	VK_CALL_AND_CHECK
+    	(
+    		vkAcquireNextImageKHR,
+    		"Failed to acquire next swapchain image",
+    		Device,
+    		Swapchain,
+    		UINT64_MAX, // no timeout
+    		Semaphore,
+    		nullptr,
+    		&imageIndex
+    	)
+    	return imageIndex;
+    }
+
+    void VulkanCore::SubmitQueueAsync(VkQueue Queue, u32 SubmitCount, const VkSubmitInfo* Submits, VkFence Fence)
+    {
+    	VK_CALL_AND_CHECK
+    	(
+    		vkQueueSubmit,
+    		"Failed to submit queue",
+    		Queue,
+    		SubmitCount,
+    		Submits,
+    		Fence
+    	)
     }
 
     void VulkanCore::CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags)

@@ -23,6 +23,8 @@ namespace FFE
             _vulkanCore.FreeCommandBuffers(_cmdBuffers);
         }
 
+        void Render();
+        
     private:
         void RecordCommandBuffers();
         

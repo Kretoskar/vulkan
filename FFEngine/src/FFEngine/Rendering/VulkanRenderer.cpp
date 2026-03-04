@@ -1,8 +1,11 @@
 ﻿#include "FFEngine/Rendering/VulkanRenderer.h"
 
-#include "FFVulkan/VulkanUtils.h"
-
 using namespace FFE;
+
+void VulkanRenderer::Render()
+{
+    
+}
 
 void VulkanRenderer::RecordCommandBuffers()
 {
