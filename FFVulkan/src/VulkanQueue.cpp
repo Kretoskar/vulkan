@@ -87,6 +87,9 @@ void VulkanQueue::Present(u32 ImageIndex)
         _queue,
         &presentInfo
     )
+
+    // hotfix for semaphores synchronization
+    vkQueueWaitIdle(_queue);
 }
 
 void VulkanQueue::WaitIdle()
