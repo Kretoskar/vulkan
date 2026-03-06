@@ -45,6 +45,8 @@ namespace FFVk
     
     void VulkanPhysicalDevices::Init(const VkInstance& vkInstance, const VkSurfaceKHR& surface)
     {
+        constexpr bool log = false;
+        
         u32 numDevices{};
         VK_CALL_AND_CHECK
         (
@@ -53,7 +55,8 @@ namespace FFVk
             vkInstance, &numDevices, nullptr
         )
 
-        LOG_MESSAGE("Num physical devices: %d", numDevices)
+        if (log)
+            LOG_MESSAGE("Num physical devices: %d", numDevices)
 
         _physicalDevices.resize(numDevices);
         std::vector<VkPhysicalDevice> physicalDevices;
@@ -75,8 +78,9 @@ namespace FFVk
 
             const char* name = _physicalDevices[i].PhysicalDeviceProperties.deviceName;
             const u32 apiVersion = _physicalDevices[i].PhysicalDeviceProperties.apiVersion;
-            
-            LOG_MESSAGE("Physical device: %hs\n "
+
+            if (log)
+                LOG_MESSAGE("Physical device: %hs\n "
                         "API Version: %d. %d. %d. %d",
                         name,
                         VK_API_VERSION_VARIANT(apiVersion),
@@ -96,13 +100,15 @@ namespace FFVk
             {
                 const VkQueueFamilyProperties& famProp = _physicalDevices[i].QueueFamilyProperties[q];
 
-                LOG_MESSAGE("Family: %d Num Queues: %d", q, famProp.queueCount)
+                if (log)
+                    LOG_MESSAGE("Family: %d Num Queues: %d", q, famProp.queueCount)
                 VkQueueFlags flags = famProp.queueFlags;
-                LOG_MESSAGE("GFX %s, Compute %s, Transfer %s, Sparse binding %s",
-                    flags & VK_QUEUE_GRAPHICS_BIT ? "yes" : "no",
-                    flags & VK_QUEUE_COMPUTE_BIT ? "yes" : "no",
-                    flags & VK_QUEUE_TRANSFER_BIT ? "yes" : "no",
-                    flags & VK_QUEUE_SPARSE_BINDING_BIT ? "yes" : "no")
+                if (log)
+                    LOG_MESSAGE("GFX %s, Compute %s, Transfer %s, Sparse binding %s",
+                        flags & VK_QUEUE_GRAPHICS_BIT ? "yes" : "no",
+                        flags & VK_QUEUE_COMPUTE_BIT ? "yes" : "no",
+                        flags & VK_QUEUE_TRANSFER_BIT ? "yes" : "no",
+                        flags & VK_QUEUE_SPARSE_BINDING_BIT ? "yes" : "no")
 
                 VK_CALL_AND_CHECK
                 (
@@ -129,7 +135,7 @@ namespace FFVk
                 device, surface, &numFormats, _physicalDevices[i].SurfaceFormats.data()
             )
 
-            if (0)
+            if (log)
             {
                 for (u32 j = 0; j < numFormats; ++j)
                 {
@@ -145,7 +151,7 @@ namespace FFVk
                 device, surface, &_physicalDevices[i].SurfaceCapabilities
             )
 
-            if (0)
+            if (log)
              {
                 PrintImageUsageFlags(_physicalDevices[i].SurfaceCapabilities.supportedUsageFlags);
             }
@@ -174,6 +180,8 @@ namespace FFVk
 
     uint32_t VulkanPhysicalDevices::SelectDevice(VkQueueFlags reqQueueType, bool supportsPresent)
     {
+        constexpr bool log = false;
+        
         for (u32 i = 0; i < _physicalDevices.size(); ++i)
         {
             for (u32 j = 0; j < _physicalDevices[i].QueueFamilyProperties.size(); j++)
@@ -184,7 +192,8 @@ namespace FFVk
                 {
                     _selectedDevice = i;
                     i32 QueueFamily = j;
-                    LOG_MESSAGE("Using GFX device %d (%s) and queue family %d\n", _selectedDevice, _physicalDevices[i].PhysicalDeviceProperties.deviceName, QueueFamily)
+                    if (log)
+                        LOG_MESSAGE("Using GFX device %d (%s) and queue family %d\n", _selectedDevice, _physicalDevices[i].PhysicalDeviceProperties.deviceName, QueueFamily)
                     return QueueFamily;
                 }
             }

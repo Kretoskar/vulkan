@@ -56,16 +56,16 @@ namespace FFVk
 					   objects.str().c_str())
 		        break;
 	        default:
-        		LOG_MESSAGE(
-					   "\nVULKAN %s\n"
-					   "Type: %s\n"
-					   "Message:\n%s\n"
-					   "Objects: %s\n",
-            		
-					   GetDebugSeverityStr(severity),
-					   GetDebugType(type),
-					   callbackData->pMessage,
-					   objects.str().c_str())
+        		//LOG_MESSAGE(
+				//	   "\nVULKAN %s\n"
+				//	   "Type: %s\n"
+				//	   "Message:\n%s\n"
+				//	   "Objects: %s\n",
+            	//	
+				//	   GetDebugSeverityStr(severity),
+				//	   GetDebugType(type),
+				//	   callbackData->pMessage,
+				//	   objects.str().c_str())
 				break;
 	        }
 
