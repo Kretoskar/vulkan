@@ -12,3 +12,6 @@ obj/
 **.csproj
 
 log/log.txt
+*.spv
+
+FF.sln.DotSettings.user

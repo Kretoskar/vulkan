@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "FFCore/Core/HString.h"
 #include "FFVulkan/VulkanCore.h"
+#include "FFVulkan/VulkanGraphicsPipeline.h"
 
 struct GLFWwindow;
 
@@ -25,10 +26,12 @@ namespace FFE
         
         VkRenderPass _renderPass = VK_NULL_HANDLE;
         std::vector<VkFramebuffer> _framebuffers;
-        u32 WindowHeight = 720;
-        u32 WindowWidth = 1280;
+        u32 _windowHeight = 720;
+        u32 _windowWidth = 1280;
         
-        VkShaderModule vertexShader = VK_NULL_HANDLE;
-        VkShaderModule fragmentShader = VK_NULL_HANDLE;
+        VkShaderModule _vertexShader = VK_NULL_HANDLE;
+        VkShaderModule _fragmentShader = VK_NULL_HANDLE;
+        
+        FFVk::GraphicsPipeline* _pipeline = nullptr;
     };
 }

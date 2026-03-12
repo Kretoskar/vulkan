@@ -149,8 +149,7 @@ VkShaderModule FFVk::CreateShaderModuleFromText(VkDevice& device, const char* fi
     
     glslang_initialize_process();
     
-    bool success = CompileShader(device, shaderStage, src.c_str(), shader);
-    if (success)
+    if (CompileShader(device, shaderStage, src.c_str(), shader))
     {
         ret = shader.shaderModule;
         std::string binaryFilename;

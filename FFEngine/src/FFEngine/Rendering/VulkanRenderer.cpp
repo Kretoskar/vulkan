@@ -17,12 +17,14 @@ void VulkanRenderer::Init(FF::HString appName, GLFWwindow* window)
     _renderPass = _vulkanCore.CreateSimpleRenderPass();
     _framebuffers = _vulkanCore.CreateFramebuffers(_renderPass);
     
+    _vertexShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "Z:/Dev/Personal/vulkan/Shaders/test.vert");
+    _fragmentShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "Z:/Dev/Personal/vulkan/Shaders/test.frag");
+    
+    _pipeline = new FFVk::GraphicsPipeline(_vulkanCore.GetDevice(), window, _renderPass, _vertexShader, _fragmentShader);
+    
     _cmdBuffers.resize(_numImages);
     _vulkanCore.CreateCommandBuffers(_numImages, _cmdBuffers.data());
     RecordCommandBuffers();
-    
-    vertexShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "test.vert");
-    fragmentShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "test.frag");
     
     _wasInit = true;
 }
@@ -34,8 +36,10 @@ void VulkanRenderer::Cleanup()
         _vulkanCore.FreeCommandBuffers(_cmdBuffers);
         _vulkanCore.Cleanup();
         
-        vkDestroyShaderModule(_vulkanCore.GetDevice(), vertexShader, nullptr);
-        vkDestroyShaderModule(_vulkanCore.GetDevice(), fragmentShader, nullptr);
+        vkDestroyShaderModule(_vulkanCore.GetDevice(), _vertexShader, nullptr);
+        vkDestroyShaderModule(_vulkanCore.GetDevice(), _fragmentShader, nullptr);
+        
+        delete _pipeline;
         
         vkDestroyRenderPass(_vulkanCore.GetDevice(), _renderPass, nullptr);
     }
@@ -69,8 +73,8 @@ void VulkanRenderer::RecordCommandBuffers()
             },
             .extent = 
                 {
-                    .width =  WindowWidth,
-                    .height = WindowHeight
+                    .width =  _windowWidth,
+                    .height = _windowHeight
                 }
         },
         .clearValueCount = 1,
@@ -90,6 +94,14 @@ void VulkanRenderer::RecordCommandBuffers()
             // Render pass
             vkCmdBeginRenderPass(_cmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
             {
+                _pipeline->Bind(_cmdBuffers[i]);
+                
+                u32 vertCount = 3;
+                u32 instanceCount = 1;
+                u32 firstVertex = 0;
+                u32 firstInstance = 0;
+                
+                vkCmdDraw(_cmdBuffers[i], vertCount, instanceCount, firstVertex, firstInstance);
                 
             } vkCmdEndRenderPass(_cmdBuffers[i]);
             
