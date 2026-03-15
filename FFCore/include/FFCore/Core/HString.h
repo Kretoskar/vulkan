@@ -111,3 +111,15 @@ namespace FF
         };
     };
 }
+
+namespace std
+{
+    template<>
+    struct hash<FF::HString>
+    {
+        size_t operator()(const FF::HString& s) const noexcept
+        {
+            return s.GetHash();
+        }
+    };
+}
