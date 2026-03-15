@@ -135,7 +135,7 @@ namespace FF
         std::queue<std::function<void()>> _taskQueue;
         std::mutex _queueMutex;
         std::condition_variable _condition;
-        bool _running = false;
+        std::atomic_bool _running = false;
     };
     
     template <typename T>
